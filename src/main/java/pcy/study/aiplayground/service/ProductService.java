@@ -24,10 +24,6 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public long getTotalStockValue() {
-        List<Product> allProducts = productRepository.findAll();
-        
-        return allProducts.stream()
-                .mapToLong(p -> (long) p.getStock())
-                .sum();
+        return productRepository.sumTotalStock();
     }
 }
