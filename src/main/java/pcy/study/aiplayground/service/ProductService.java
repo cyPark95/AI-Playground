@@ -6,8 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pcy.study.aiplayground.entity.Product;
 import pcy.study.aiplayground.repository.ProductRepository;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -16,7 +14,7 @@ public class ProductService {
 
     @Transactional
     public void orderProduct(Long productId, int quantity) {
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findByIdWithPessimisticLock(productId)
                 .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
 
         product.decreaseStock(quantity);

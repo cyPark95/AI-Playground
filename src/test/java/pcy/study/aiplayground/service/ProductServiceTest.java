@@ -5,15 +5,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 import pcy.study.aiplayground.entity.Product;
 import pcy.study.aiplayground.repository.ProductRepository;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
-@Transactional
 class ProductServiceTest {
 
     @Autowired
@@ -29,6 +31,11 @@ class ProductServiceTest {
         Product product = new Product("테스트 상품", 100);
         Product savedProduct = productRepository.save(product);
         savedProductId = savedProduct.getId();
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        productRepository.deleteAll();
     }
 
     @Test
@@ -70,5 +77,28 @@ class ProductServiceTest {
         // then
         // 기존 100 (setUp) + 50 + 30 = 180
         assertThat(totalStock).isEqualTo(180);
+    }
+
+    @Test
+    @DisplayName("100명이 동시에 1개씩 주문하면 재고가 0이 되어야 한다.")
+    void orderProduct_Concurrency() throws InterruptedException {
+        int threadCount = 100;
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        try (ExecutorService executorService = Executors.newFixedThreadPool(32)) {
+            for (int i = 0; i < threadCount; i++) {
+                executorService.submit(() -> {
+                    try {
+                        productService.orderProduct(savedProductId, 1);
+                    } finally {
+                        latch.countDown();
+                    }
+                });
+            }
+            latch.await();
+        }
+
+        Product product = productRepository.findById(savedProductId).orElseThrow();
+        assertThat(product.getStock()).isEqualTo(0);
     }
 }
