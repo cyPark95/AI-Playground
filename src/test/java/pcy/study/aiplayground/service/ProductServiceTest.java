@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import pcy.study.aiplayground.entity.Product;
+import pcy.study.aiplayground.exception.InsufficientStockException;
 import pcy.study.aiplayground.repository.ProductRepository;
 
 import java.util.concurrent.CountDownLatch;
@@ -63,7 +64,7 @@ class ProductServiceTest {
 
         // when & then
         assertThatThrownBy(() -> productService.orderProduct(savedProductId, orderQuantity))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(InsufficientStockException.class)
                 .hasMessage("재고가 부족합니다.");
     }
 

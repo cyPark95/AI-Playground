@@ -6,6 +6,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pcy.study.aiplayground.entity.Product;
+import pcy.study.aiplayground.exception.ProductNotFoundException;
 import pcy.study.aiplayground.repository.ProductRepository;
 
 @Service
@@ -18,7 +19,7 @@ public class ProductService {
     @CacheEvict(value = "stocks", allEntries = true)
     public void orderProduct(Long productId, int quantity) {
         Product product = productRepository.findByIdWithPessimisticLock(productId)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+                .orElseThrow(ProductNotFoundException::new);
 
         product.decreaseStock(quantity);
     }

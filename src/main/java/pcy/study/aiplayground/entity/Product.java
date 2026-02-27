@@ -4,14 +4,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import pcy.study.aiplayground.exception.InsufficientStockException;
 
 @Entity
 @Getter
-@Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +28,7 @@ public class Product {
 
     public void decreaseStock(int quantity) {
         if (this.stock < quantity) {
-            throw new RuntimeException("재고가 부족합니다.");
+            throw new InsufficientStockException();
         }
         this.stock -= quantity;
     }
