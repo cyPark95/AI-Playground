@@ -27,6 +27,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     @Cacheable(value = "stocks")
     public long getTotalStockValue() {
+        System.out.println("Total stock value calculated in service layer.");
         return productRepository.sumTotalStock();
     }
 }
