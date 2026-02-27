@@ -31,4 +31,4 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # 직접 등록해야 하는 Secret
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO_NAME: ${{ github.repository }}
-        run: python .github/scripts/review.py
+        run: python .github/scripts/review_step2.py
