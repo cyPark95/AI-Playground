@@ -1,3 +1,8 @@
 spring:
   application:
     name: AI-Playground
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
