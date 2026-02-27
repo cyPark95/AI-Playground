@@ -65,12 +65,12 @@ def get_pr_diff(repo, pr_number, token):
 
 def call_gemini_api(messages, api_key):
     """Gemini API를 호출합니다 (메시지 히스토리 포함)."""
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key={api_key}"
+    # 모델명을 gemini-1.5-flash로 변경하고 JSON 모드를 제거합니다.
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
     
     payload = {
         "contents": messages,
-        "tools": TOOLS_SPEC,
-        "generationConfig": {"response_mime_type": "application/json"}
+        "tools": TOOLS_SPEC
     }
     
     response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload)
@@ -147,6 +147,11 @@ def post_pull_request_review(repo, pr_number, token, review_data_str):
     headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github.v3+json"}
     
     try:
+        # AI 응답 텍스트에서 JSON 부분만 추출 (```json ... ``` 또는 { ... })
+        json_match = re.search(r'\{.*\}', review_data_str, re.DOTALL)
+        if json_match:
+            review_data_str = json_match.group(0)
+            
         review_data = json.loads(review_data_str)
         comments = []
         for r in review_data.get("reviews", []):
