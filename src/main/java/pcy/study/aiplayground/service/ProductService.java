@@ -1,6 +1,8 @@
 package pcy.study.aiplayground.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pcy.study.aiplayground.entity.Product;
@@ -13,6 +15,7 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     @Transactional
+    @CacheEvict(value = "stocks", allEntries = true)
     public void orderProduct(Long productId, int quantity) {
         Product product = productRepository.findByIdWithPessimisticLock(productId)
                 .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
@@ -21,6 +24,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "stocks")
     public long getTotalStockValue() {
         return productRepository.sumTotalStock();
     }

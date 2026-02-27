@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import pcy.study.aiplayground.entity.Product;
 import pcy.study.aiplayground.repository.ProductRepository;
 
@@ -14,6 +15,8 @@ import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 class ProductServiceTest {
@@ -21,7 +24,7 @@ class ProductServiceTest {
     @Autowired
     private ProductService productService;
 
-    @Autowired
+    @MockitoSpyBean
     private ProductRepository productRepository;
 
     private Long savedProductId;
@@ -100,5 +103,24 @@ class ProductServiceTest {
 
         Product product = productRepository.findById(savedProductId).orElseThrow();
         assertThat(product.getStock()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("전체 재고 합계 조회 시 캐시가 적용되어야 하며, 주문 시 캐시가 무효화되어야 한다.")
+    void getTotalStockValue_Caching() {
+        // 1. 처음 호출: 실제 Repository 호출 (DB 조회)
+        productService.getTotalStockValue();
+        verify(productRepository, times(1)).sumTotalStock();
+
+        // 2. 두 번째 호출: 캐시된 값 반환 (Repository 호출 없음)
+        productService.getTotalStockValue();
+        verify(productRepository, times(1)).sumTotalStock();
+
+        // 3. 상품 주문: 캐시 무효화 발생 (@CacheEvict)
+        productService.orderProduct(savedProductId, 10);
+
+        // 4. 주문 후 호출: 다시 실제 Repository 호출 (DB 조회)
+        productService.getTotalStockValue();
+        verify(productRepository, times(2)).sumTotalStock(); // 호출 횟수가 2로 증가
     }
 }
