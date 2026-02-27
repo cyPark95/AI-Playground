@@ -14,6 +14,12 @@
 
 * **목표:** CI/CD 파이프라인과 AI API 연동의 기본기 체득
 * **내용:** GitHub Actions와 Python 스크립트를 활용해, PR 생성 시 변경된 코드(Git Diff)만 Gemini API로 분석하여 코멘트를 남기는 기초 파이프라인 구축.
+* **학습한 AI 활용 핵심 원리:**
+    *   **페르소나 주입 및 역할 정의 (System Prompting):** '시니어 Java Spring 백엔드 엔지니어' 역할을 부여하여 응답의 전문성과 집중 분석 포인트를 제어함.
+    *   **구조화된 출력 (Structured Output):** AI 응답을 JSON 형식으로 강제하여 GitHub Review API와 시스템 간 연동이 가능하게 설계함.
+    *   **제한된 맥락 기반 추론 (Context-Limited Reasoning):** Git Diff라는 최소한의 정보만으로 코드의 안티 패턴(동시성 이슈 등)을 식별하는 AI의 추론 능력을 활용함.
+    *   **가이드라인 제약 (Constraint Enforcement):** 프롬프트 내 집중 리뷰 포인트를 명시하여 단순 문법 교정이 아닌 고도화된 기술 설계 관점의 리뷰를 유도함.
+    *   **인간-AI 협업 루프 (Human-in-the-loop):** AI의 피드백을 기반으로 인간이 비즈니스 로직(비관적 락, Redis 캐시 등)을 실제 구현하고 검증하는 협업 프로세스 체득.
 
 ### Step 2: 에이전트의 이해 (Function Calling)
 
