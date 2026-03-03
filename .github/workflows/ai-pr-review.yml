@@ -3,6 +3,8 @@ name: AI PR Code Reviewer
 on:
   pull_request:
     types: [opened, synchronize] # PR이 열리거나 새 커밋이 추가될 때 실행
+    branches:
+      - 'step*'   # 대상 브랜치가 step으로 시작할 때만 실행
     paths-ignore:
       - '.github/**'   # .github 폴더 전체 제외
 
@@ -28,7 +30,7 @@ jobs:
       - name: Run Gemini Code Review
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub에서 자동 제공
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # 직접 등록해야 하는 Secret
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO_NAME: ${{ github.repository }}
         run: python .github/scripts/review_step2.py
